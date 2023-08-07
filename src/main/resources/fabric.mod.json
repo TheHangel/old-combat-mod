@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "modid",
+  "version": "${version}",
+
+  "name": "Old Combat Mod",
+  "description": "Mod that allows the old combat system with the old animation in Minecraft.",
+  "authors": [
+    "The_Hangel"
+  ],
+  "contact": {
+    "homepage": "https://www.hangel.dev/"
+  },
+
+  "license": "All Rights Reserved",
+  "icon": "assets/old_combat_mod/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.hangel.old_combat_mod.OldCombatMain"
+    ]
+  },
+  "mixins": [
+    "old_combat_mod.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.14.11",
+    "fabric-api": "*",
+    "minecraft": ">=1.19.3",
+    "java": ">=17"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
