@@ -19,32 +19,35 @@ public class OldCombatMain implements ModInitializer {
 	public static final String MOD_ID = "old_combat_mod";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	
-	public static final GameRules.Key<GameRules.BooleanRule> OLDCOMBAT =
+	public static final GameRules.Key<GameRules.BooleanRule> OLD_COMBAT =
 			GameRuleRegistry.register("oldCombat", Category.PLAYER, GameRuleFactory.createBooleanRule(true));
 	
 
 	@Override
 	public void onInitialize() {
-		ServerTickEvents.END_WORLD_TICK.register(world -> changePlayersAttribute(world));
+		ServerTickEvents.END_WORLD_TICK.register(OldCombatMain::changePlayersAttribute);
 	}
 	
 	private static void changePlayersAttribute(ServerWorld world) {
 		if ( !world.isClient ) {
-			if (world.getPlayers().size() > 0) {
-				if ( world.getGameRules().getBoolean(OLDCOMBAT) ) {
+			if (!world.getPlayers().isEmpty()) {
+				if ( world.getGameRules().getBoolean(OLD_COMBAT) ) {
 					for(PlayerEntity p : world.getPlayers()) {
 						EntityAttributeInstance i = p.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_SPEED);
-						i.setBaseValue(1024);
+						if (i != null) {
+							i.setBaseValue(1024);
+						}
 					}
 				}
 				else {
 					for(PlayerEntity p : world.getPlayers()) {
 						EntityAttributeInstance i = p.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_SPEED);
-						i.setBaseValue(EntityAttributes.GENERIC_ATTACK_SPEED.getDefaultValue());
+						if (i != null) {
+							i.setBaseValue(EntityAttributes.GENERIC_ATTACK_SPEED.getDefaultValue());
+						}
 					}
 				}
 			}
 		}
 	}
-	
 }
