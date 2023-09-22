@@ -1,49 +1,40 @@
 package dev.hangel.old_combat_mod.events;
 
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.event.TickEvent;
 
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import dev.hangel.old_combat_mod.gamerules.OldCombatGamerule;
-
-import javax.annotation.Nullable;
 
 @Mod.EventBusSubscriber
 public class PlayerTickEvent {
 	
 	@SubscribeEvent
-	public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+	public static void onServerTick(TickEvent.ServerTickEvent event) {
+		ServerLevel world = event.getServer().overworld();
 		if (event.phase == TickEvent.Phase.END) {
-			execute(event, event.player.level(), event.player);
-		}
-	}
-	
-	public static void execute(LevelAccessor world, Entity entity) {
-		execute(null, world, entity);
-	}
-	
-	private static void execute(@Nullable Event event, LevelAccessor world, Entity entity) {
-		if (entity == null)
-			return;
-		if (world.getLevelData().getGameRules().getBoolean(OldCombatGamerule.OLDCOMBAT) == true) {
-			{
-				Entity _ent = entity;
-				if (!_ent.level().isClientSide() && _ent.getServer() != null)
-					_ent.getServer().getCommands().performPrefixedCommand(_ent.createCommandSourceStack().withSuppressedOutput().withPermission(4),
-							"attribute @p minecraft:generic.attack_speed base set 1024");
-			}
-		} else {
-			{
-				Entity _ent = entity;
-				if (!_ent.level().isClientSide() && _ent.getServer() != null)
-					_ent.getServer().getCommands().performPrefixedCommand(_ent.createCommandSourceStack().withSuppressedOutput().withPermission(4),
-							"attribute @p minecraft:generic.attack_speed base set 4");
+			if (!world.isClientSide()) {
+				if (world.getLevelData().getGameRules().getBoolean(OldCombatGamerule.OLD_COMBAT)) {
+					for (Player p : world.players()) {
+						AttributeInstance i = p.getAttribute(Attributes.ATTACK_SPEED);
+						if (i != null) {
+							i.setBaseValue(1024);
+						}
+					}
+				} else {
+					for (Player p : world.players()) {
+						AttributeInstance i = p.getAttribute(Attributes.ATTACK_SPEED);
+						if (i != null) {
+							i.setBaseValue(Attributes.ATTACK_SPEED.getDefaultValue());
+						}
+					}
+				}
 			}
 		}
 	}
-
 }

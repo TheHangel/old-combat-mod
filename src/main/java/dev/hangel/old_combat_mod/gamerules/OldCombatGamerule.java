@@ -5,7 +5,7 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class OldCombatGamerule {
-		
-	public static final GameRules.Key<GameRules.BooleanValue> OLDCOMBAT = 
+
+	public static final GameRules.Key<GameRules.BooleanValue> OLD_COMBAT =
 			GameRules.register("oldCombat", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true));
 }
