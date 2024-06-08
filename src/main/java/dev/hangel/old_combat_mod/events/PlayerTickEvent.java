@@ -30,7 +30,7 @@ public class PlayerTickEvent {
 					for (Player p : world.players()) {
 						AttributeInstance i = p.getAttribute(Attributes.ATTACK_SPEED);
 						if (i != null) {
-							i.setBaseValue(Attributes.ATTACK_SPEED.getDefaultValue());
+							i.setBaseValue(Attributes.ATTACK_SPEED.get().getDefaultValue());
 						}
 					}
 				}
