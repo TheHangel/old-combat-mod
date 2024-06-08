@@ -43,7 +43,7 @@ public class OldCombatMain implements ModInitializer {
 					for(PlayerEntity p : world.getPlayers()) {
 						EntityAttributeInstance i = p.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_SPEED);
 						if (i != null) {
-							i.setBaseValue(EntityAttributes.GENERIC_ATTACK_SPEED.getDefaultValue());
+							i.setBaseValue(EntityAttributes.GENERIC_ATTACK_SPEED.value().getDefaultValue());
 						}
 					}
 				}
