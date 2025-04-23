@@ -33,7 +33,7 @@ public class OldCombatMain implements ModInitializer {
 			if (!world.getPlayers().isEmpty()) {
 				if ( world.getGameRules().getBoolean(OLD_COMBAT) ) {
 					for(PlayerEntity p : world.getPlayers()) {
-						EntityAttributeInstance i = p.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_SPEED);
+						EntityAttributeInstance i = p.getAttributeInstance(EntityAttributes.ATTACK_SPEED);
 						if (i != null) {
 							i.setBaseValue(1024);
 						}
@@ -41,9 +41,9 @@ public class OldCombatMain implements ModInitializer {
 				}
 				else {
 					for(PlayerEntity p : world.getPlayers()) {
-						EntityAttributeInstance i = p.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_SPEED);
+						EntityAttributeInstance i = p.getAttributeInstance(EntityAttributes.ATTACK_SPEED);
 						if (i != null) {
-							i.setBaseValue(EntityAttributes.GENERIC_ATTACK_SPEED.value().getDefaultValue());
+							i.setBaseValue(EntityAttributes.ATTACK_SPEED.value().getDefaultValue());
 						}
 					}
 				}
