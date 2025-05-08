@@ -19,7 +19,7 @@ public class PlayerTickEvent {
 		ServerLevel world = event.getServer().overworld();
 		if (event.phase == TickEvent.Phase.END) {
 			if (!world.isClientSide()) {
-				if (world.getLevelData().getGameRules().getBoolean(OldCombatGamerule.OLD_COMBAT)) {
+				if (world.getServer().getGameRules().getBoolean(OldCombatGamerule.OLD_COMBAT)) {
 					for (Player p : world.players()) {
 						AttributeInstance i = p.getAttribute(Attributes.ATTACK_SPEED);
 						if (i != null) {
