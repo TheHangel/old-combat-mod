@@ -1,10 +1,11 @@
 package dev.hangel.old_combat_mod;
 
+import net.minecraft.world.level.GameRules;
+import net.minecraftforge.eventbus.api.bus.BusGroup;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
@@ -16,10 +17,13 @@ public class MainOldCombatMod
     public static final String MODID = "old_combat_mod";
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
-    
-    public MainOldCombatMod()
+
+    public static final GameRules.Key<GameRules.BooleanValue> OLD_COMBAT =
+            GameRules.register("oldCombat", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true));
+
+
+    public MainOldCombatMod(FMLJavaModLoadingContext context)
     {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        BusGroup busGroup = context.getModBusGroup();
     }
-    
 }

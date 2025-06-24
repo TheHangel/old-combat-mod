@@ -1,15 +1,14 @@
 package dev.hangel.old_combat_mod.events;
 
+import dev.hangel.old_combat_mod.MainOldCombatMod;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.event.TickEvent;
 
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-
-import dev.hangel.old_combat_mod.gamerules.OldCombatGamerule;
 
 @Mod.EventBusSubscriber
 public class PlayerTickEvent {
@@ -19,7 +18,7 @@ public class PlayerTickEvent {
 		ServerLevel world = event.getServer().overworld();
 		if (event.phase == TickEvent.Phase.END) {
 			if (!world.isClientSide()) {
-				if (world.getServer().getGameRules().getBoolean(OldCombatGamerule.OLD_COMBAT)) {
+				if (world.getServer().getGameRules().getBoolean(MainOldCombatMod.OLD_COMBAT)) {
 					for (Player p : world.players()) {
 						AttributeInstance i = p.getAttribute(Attributes.ATTACK_SPEED);
 						if (i != null) {
