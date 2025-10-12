@@ -21,15 +21,14 @@ public class OldCombatMain implements ModInitializer {
 	
 	public static final GameRules.Key<GameRules.BooleanRule> OLD_COMBAT =
 			GameRuleRegistry.register("oldCombat", Category.PLAYER, GameRuleFactory.createBooleanRule(true));
-	
 
 	@Override
 	public void onInitialize() {
 		ServerTickEvents.END_WORLD_TICK.register(OldCombatMain::changePlayersAttribute);
 	}
-	
+
 	private static void changePlayersAttribute(ServerWorld world) {
-		if ( !world.isClient ) {
+		if ( !world.isClient()) {
 			if (!world.getPlayers().isEmpty()) {
 				if ( world.getGameRules().getBoolean(OLD_COMBAT) ) {
 					for(PlayerEntity p : world.getPlayers()) {
