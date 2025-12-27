@@ -16,7 +16,7 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "com.example.examplemod.ExampleMod"
+            "dev.hangel.old_combat_mod.OldCombatMod"
         ]
     },
     "mixins": [
