@@ -88,7 +88,12 @@ jobs:
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
 
           files: |
-            dist/*.jar
+            dist/fabric/build/libs/*.jar
+            dist/forge/build/libs/*.jar
+            dist/neoforge/build/libs/*.jar
+            !dist/**/*-sources.jar
+            !dist/**/*-javadoc.jar
+            !dist/**/*-dev.jar
 
           version: ${{ needs.build.outputs.version }}
           name: test ${{ needs.build.outputs.version }}
