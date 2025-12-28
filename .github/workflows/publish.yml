@@ -1,0 +1,59 @@
+name: Publish
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # Build les 3 loaders (tu peux aussi faire ./gradlew build si tout est bien câblé)
+      - name: Build all loaders
+        run: |
+          ./gradlew :fabric:build :forge:build :neoforge:build
+
+      - name: Publish to Modrinth (one version, three files)
+        uses: Kir-Antipov/mc-publish@v3
+        with:
+          modrinth-id: 4AtIxJG2
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
+          # On publie UNE version Modrinth contenant 3 fichiers (fabric/forge/neoforge)
+          files: |
+            fabric/build/libs/*.jar
+            forge/build/libs/*.jar
+            neoforge/build/libs/*.jar
+
+          # Version = tag sans le "v" (v1.2.3 -> 1.2.3)
+          version: 1.0
+          name: test
+
+          # Les loaders déclarés pour cette version Modrinth
+          loaders: |
+            fabric
+            forge
+            neoforge
+
+          # À adapter à ton mod (tu peux aussi mettre plusieurs versions)
+          game-versions: |
+            1.21.11
+
+          # Optionnel : changelog auto depuis commits du tag
+          changelog: test
