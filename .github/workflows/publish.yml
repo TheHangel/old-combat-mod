@@ -131,6 +131,13 @@ jobs:
           modrinth-id: 4AtIxJG2
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
 
+          curseforge-id: 1415270
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-tag: v${{ needs.build.outputs.version }}
+          github-name: Release v${{ needs.build.outputs.version }}
+
           files: |
             ${{ env.FABRIC_JAR }}
             ${{ env.FORGE_JAR }}
@@ -145,6 +152,6 @@ jobs:
             neoforge
 
           game-versions: |
-            1.21.1
+            1.21.11
 
           changelog: test
