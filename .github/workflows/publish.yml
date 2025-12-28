@@ -54,7 +54,7 @@ jobs:
 
       # (Optionnel mais très utile) Voir ce qu'on a téléchargé
       - name: List downloaded files
-        run: ls -lah dist
+        run: ls -lahR dist
 
       - name: Check Modrinth token is present
         shell: bash
@@ -81,6 +81,50 @@ jobs:
           fi
           echo "✅ Modrinth API auth check OK (HTTP $code)."
 
+      - name: Pick release jars
+        shell: bash
+        run: |
+          set -euo pipefail
+          
+          echo "== Fabric candidates =="
+          ls -1 dist/fabric/build/libs/*.jar || true
+          
+          echo "== Forge candidates =="
+          ls -1 dist/forge/build/libs/*.jar || true
+          
+          echo "== NeoForge candidates =="
+          ls -1 dist/neoforge/build/libs/*.jar || true
+          
+          # On exclut sources/javadoc/dev et on prend le jar restant.
+          FABRIC_JAR=$(ls -1 dist/fabric/build/libs/*.jar | grep -Ev '(-sources|-javadoc|-dev)\.jar$' | head -n 1)
+          FORGE_JAR=$(ls -1 dist/forge/build/libs/*.jar  | grep -Ev '(-sources|-javadoc|-dev)\.jar$' | head -n 1)
+          NEOFORGE_JAR=$(ls -1 dist/neoforge/build/libs/*.jar | grep -Ev '(-sources|-javadoc|-dev)\.jar$' | head -n 1)
+          
+          echo "FABRIC_JAR=$FABRIC_JAR" >> $GITHUB_ENV
+          echo "FORGE_JAR=$FORGE_JAR" >> $GITHUB_ENV
+          echo "NEOFORGE_JAR=$NEOFORGE_JAR" >> $GITHUB_ENV
+          
+          echo "Selected:"
+          echo " - $FABRIC_JAR"
+          echo " - $FORGE_JAR"
+          echo " - $NEOFORGE_JAR"
+
+      - name: Validate mod descriptors inside jars
+        shell: bash
+        run: |
+          set -euo pipefail
+          
+          echo "Check Fabric descriptor..."
+          unzip -l "${FABRIC_JAR}" | grep -q "fabric.mod.json" || (echo "❌ fabric.mod.json missing in ${FABRIC_JAR}" && exit 1)
+          
+          echo "Check Forge descriptor..."
+          unzip -l "${FORGE_JAR}" | grep -Eq "META-INF/mods.toml|META-INF/neoforge.mods.toml" || (echo "❌ mods.toml missing in ${FORGE_JAR}" && exit 1)
+          
+          echo "Check NeoForge descriptor..."
+          unzip -l "${NEOFORGE_JAR}" | grep -q "META-INF/neoforge.mods.toml" || (echo "❌ neoforge.mods.toml missing in ${NEOFORGE_JAR}" && exit 1)
+          
+          echo "✅ Descriptors look good"
+
       - name: Publish to Modrinth (one version, three files)
         uses: Kir-Antipov/mc-publish@v3
         with:
@@ -88,12 +132,9 @@ jobs:
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
 
           files: |
-            dist/fabric/build/libs/*.jar
-            dist/forge/build/libs/*.jar
-            dist/neoforge/build/libs/*.jar
-            !dist/**/*-sources.jar
-            !dist/**/*-javadoc.jar
-            !dist/**/*-dev.jar
+            ${{ env.FABRIC_JAR }}
+            ${{ env.FORGE_JAR }}
+            ${{ env.NEOFORGE_JAR }}
 
           version: ${{ needs.build.outputs.version }}
           name: test ${{ needs.build.outputs.version }}
