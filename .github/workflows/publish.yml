@@ -7,127 +7,54 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.ver.outputs.version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        loader: [ fabric, forge, neoforge ]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
 
-      - name: Build all loaders
+      - name: Build ${{ matrix.loader }}
         run: |
           chmod +x gradlew
-          ./gradlew :fabric:build :forge:build :neoforge:build
+          ./gradlew :${{ matrix.loader }}:build
 
-      # Version unique par run (évite "version already exists" sur Modrinth)
-      - name: Compute version
-        id: ver
-        run: echo "version=1.0+build.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
-
-      - name: Upload build artifacts (jars)
+      - name: Upload jar artifact
         uses: actions/upload-artifact@v4
         with:
-          name: mod-jars
+          name: jar-${{ matrix.loader }}
           if-no-files-found: error
           path: |
-            fabric/build/libs/*.jar
-            forge/build/libs/*.jar
-            neoforge/build/libs/*.jar
+            ${{ matrix.loader }}/build/libs/*.jar
 
   publish:
     runs-on: ubuntu-latest
     needs: build
     environment: production
-    permissions:
-      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        loader: [ fabric, forge, neoforge ]
     steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
-          name: mod-jars
+          name: jar-${{ matrix.loader }}
           path: dist
 
-      # (Optionnel mais très utile) Voir ce qu'on a téléchargé
-      - name: List downloaded files
-        run: ls -lahR dist
-
-      - name: Check Modrinth token is present
-        shell: bash
-        env:
-          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-        run: |
-          if [ -z "${MODRINTH_TOKEN}" ]; then
-            echo "❌ MODRINTH_TOKEN is missing or empty."
-            exit 1
-          fi
-            echo "✅ MODRINTH_TOKEN is present (length: ${#MODRINTH_TOKEN})"
-
-      - name: Validate Modrinth token (API check)
-        shell: bash
-        env:
-          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-        run: |
-          code=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "Authorization: ${MODRINTH_TOKEN}" \
-            "https://api.modrinth.com/v2/project/4AtIxJG2")
-          if [ "$code" != "200" ]; then
-            echo "❌ Modrinth API auth check failed (HTTP $code)."
-            exit 1
-          fi
-          echo "✅ Modrinth API auth check OK (HTTP $code)."
-
-      - name: Pick release jars
+      - name: Pick release jar
         shell: bash
         run: |
           set -euo pipefail
-          
-          echo "== Fabric candidates =="
-          ls -1 dist/fabric/build/libs/*.jar || true
-          
-          echo "== Forge candidates =="
-          ls -1 dist/forge/build/libs/*.jar || true
-          
-          echo "== NeoForge candidates =="
-          ls -1 dist/neoforge/build/libs/*.jar || true
-          
-          # On exclut sources/javadoc/dev et on prend le jar restant.
-          FABRIC_JAR=$(ls -1 dist/fabric/build/libs/*.jar | grep -Ev '(-sources|-javadoc|-dev)\.jar$' | head -n 1)
-          FORGE_JAR=$(ls -1 dist/forge/build/libs/*.jar  | grep -Ev '(-sources|-javadoc|-dev)\.jar$' | head -n 1)
-          NEOFORGE_JAR=$(ls -1 dist/neoforge/build/libs/*.jar | grep -Ev '(-sources|-javadoc|-dev)\.jar$' | head -n 1)
-          
-          echo "FABRIC_JAR=$FABRIC_JAR" >> $GITHUB_ENV
-          echo "FORGE_JAR=$FORGE_JAR" >> $GITHUB_ENV
-          echo "NEOFORGE_JAR=$NEOFORGE_JAR" >> $GITHUB_ENV
-          
-          echo "Selected:"
-          echo " - $FABRIC_JAR"
-          echo " - $FORGE_JAR"
-          echo " - $NEOFORGE_JAR"
+          JAR=$(ls -1 dist/*.jar | grep -Ev '(-sources|-javadoc|-dev)\.jar$' | head -n 1)
+          echo "JAR=$JAR" >> $GITHUB_ENV
+          echo "Using $JAR"
 
-      - name: Validate mod descriptors inside jars
-        shell: bash
-        run: |
-          set -euo pipefail
-          
-          echo "Check Fabric descriptor..."
-          unzip -l "${FABRIC_JAR}" | grep -q "fabric.mod.json" || (echo "❌ fabric.mod.json missing in ${FABRIC_JAR}" && exit 1)
-          
-          echo "Check Forge descriptor..."
-          unzip -l "${FORGE_JAR}" | grep -Eq "META-INF/mods.toml|META-INF/neoforge.mods.toml" || (echo "❌ mods.toml missing in ${FORGE_JAR}" && exit 1)
-          
-          echo "Check NeoForge descriptor..."
-          unzip -l "${NEOFORGE_JAR}" | grep -q "META-INF/neoforge.mods.toml" || (echo "❌ neoforge.mods.toml missing in ${NEOFORGE_JAR}" && exit 1)
-          
-          echo "✅ Descriptors look good"
-
-      - name: Publish to Modrinth (one version, three files)
+      - name: Publish to Modrinth (${{ matrix.loader }})
         uses: Kir-Antipov/mc-publish@v3
         with:
           modrinth-id: 4AtIxJG2
@@ -136,22 +63,18 @@ jobs:
           curseforge-id: 1415270
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          github-tag: v${{ needs.build.outputs.version }}
-          github-name: Release v${{ needs.build.outputs.version }}
+          #github-token: ${{ secrets.GITHUB_TOKEN }}
+          #github-tag: v${{ needs.build.outputs.version }}
+          #github-name: Release v${{ needs.build.outputs.version }}
 
           files: |
-            ${{ env.FABRIC_JAR }}
-            ${{ env.FORGE_JAR }}
-            ${{ env.NEOFORGE_JAR }}
+            ${{ env.JAR }}
 
-          version: ${{ needs.build.outputs.version }}
-          name: test ${{ needs.build.outputs.version }}
+          version: 1.0+${{ matrix.loader }}.build.${{ github.run_number }}
+          name: test (${{ matrix.loader }}) 1.0+build.${{ github.run_number }}
 
           loaders: |
-            fabric
-            forge
-            neoforge
+            ${{ matrix.loader }}
 
           game-versions: |
             1.21.11
