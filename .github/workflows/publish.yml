@@ -42,6 +42,7 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
       - name: Read versions from gradle.properties
         shell: bash
         run: |
@@ -105,8 +106,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.MOD_VERSION }}+${{ matrix.loader }}.build.${{ github.run_number }}
-          name: ${{ matrix.loader }} ${{ env.MOD_VERSION }} (Minecraft ${{ env.MC_VERSION }})
+          tag_name: v${{ env.MOD_VERSION }}+build.${{ github.run_number }}
+          name: Release v${{ env.MOD_VERSION }} (Minecraft ${{ env.MC_VERSION }})
           draft: true
           body: |
             - Fabric / Forge / NeoForge jars
@@ -122,6 +123,7 @@ jobs:
       matrix:
         loader: [ fabric, forge, neoforge ]
     steps:
+      - uses: actions/checkout@v4
       - name: Read versions from gradle.properties
         shell: bash
         run: |
