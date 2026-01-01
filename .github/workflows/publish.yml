@@ -7,6 +7,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GRADLE_OPTS: "-Xmx16G"
+      JAVA_TOOL_OPTIONS: "-Xmx16G"
     strategy:
       fail-fast: false
       matrix:
@@ -39,6 +42,30 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Read versions from gradle.properties
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          prop() {
+            local key="$1"
+            grep -E "^\s*${key}\s*=" gradle.properties | head -n1 | cut -d= -f2- | sed 's/^\s*//; s/\s*$//'
+          }
+
+          MC_VERSION="$(prop minecraft_version)"
+          MOD_VERSION="$(prop version)"
+
+          if [[ -z "${MC_VERSION}" || -z "${MOD_VERSION}" ]]; then
+            echo "❌ Impossible de lire minecraft_version ou version depuis gradle.properties"
+            exit 1
+          fi
+
+          echo "MC_VERSION=${MC_VERSION}" >> "$GITHUB_ENV"
+          echo "MOD_VERSION=${MOD_VERSION}" >> "$GITHUB_ENV"
+
+          echo "✅ MC_VERSION=${MC_VERSION}"
+          echo "✅ MOD_VERSION=${MOD_VERSION}"
+
       - uses: actions/download-artifact@v4
         with:
           pattern: jar-*
@@ -78,12 +105,11 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0+build.${{ github.run_number }}
-          name: Release v1.0+build.${{ github.run_number }}
+          tag_name: ${{ env.MOD_VERSION }}+${{ matrix.loader }}.build.${{ github.run_number }}
+          name: ${{ matrix.loader }} ${{ env.MOD_VERSION }} (Minecraft ${{ env.MC_VERSION }})
           draft: true
           body: |
-            Release for build ${{ github.run_number }}
-            - Fabric / Forge / NeoForge jars attached
+            - Fabric / Forge / NeoForge jars
           files: |
             upload/*.jar
 
@@ -96,6 +122,30 @@ jobs:
       matrix:
         loader: [ fabric, forge, neoforge ]
     steps:
+      - name: Read versions from gradle.properties
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          prop() {
+            local key="$1"
+            grep -E "^\s*${key}\s*=" gradle.properties | head -n1 | cut -d= -f2- | sed 's/^\s*//; s/\s*$//'
+          }
+
+          MC_VERSION="$(prop minecraft_version)"
+          MOD_VERSION="$(prop version)"
+
+          if [[ -z "${MC_VERSION}" || -z "${MOD_VERSION}" ]]; then
+            echo "❌ Impossible de lire minecraft_version ou version depuis gradle.properties"
+            exit 1
+          fi
+
+          echo "MC_VERSION=${MC_VERSION}" >> "$GITHUB_ENV"
+          echo "MOD_VERSION=${MOD_VERSION}" >> "$GITHUB_ENV"
+
+          echo "✅ MC_VERSION=${MC_VERSION}"
+          echo "✅ MOD_VERSION=${MOD_VERSION}"
+
       - uses: actions/download-artifact@v4
         with:
           name: jar-${{ matrix.loader }}
@@ -121,13 +171,13 @@ jobs:
           files: |
             ${{ env.JAR }}
 
-          version: 1.0+${{ matrix.loader }}.build.${{ github.run_number }}
-          name: test (${{ matrix.loader }}) 1.0+build.${{ github.run_number }}
+          version: ${{ env.MOD_VERSION }}+${{ matrix.loader }}.build.${{ github.run_number }}
+          name: ${{ matrix.loader }} ${{ env.MOD_VERSION }} (MC ${{ env.MC_VERSION }})
 
           loaders: |
             ${{ matrix.loader }}
 
           game-versions: |
-            1.21.11
+            ${{ env.MC_VERSION }}
 
           changelog: test
