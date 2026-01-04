@@ -34,7 +34,7 @@ public class OldCombatMod implements ModInitializer {
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayer player = handler.player;
-            apply(player.level(), player, player.level().getGameRules().get(OLD_COMBAT));
+            apply(player, player.level().getGameRules().get(OLD_COMBAT));
         });
     }
 
@@ -60,11 +60,11 @@ public class OldCombatMod implements ModInitializer {
 
     private static void applyAll(ServerLevel world, boolean enabled) {
         for (ServerPlayer p : world.players()) {
-            apply(world, p, enabled);
+            apply(p, enabled);
         }
     }
 
-    private static void apply(ServerLevel world, net.minecraft.server.level.ServerPlayer p, boolean enabled) {
+    private static void apply(ServerPlayer p, boolean enabled) {
         AttributeInstance inst = p.getAttribute(Attributes.ATTACK_SPEED);
         if (inst == null) return;
 
