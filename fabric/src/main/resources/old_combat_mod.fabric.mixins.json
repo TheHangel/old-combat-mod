@@ -4,9 +4,8 @@
   "package": "dev.hangel.old_combat_mod.mixin",
   "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [],
-  "client": [
-    "MixinTitleScreen"
+  "mixins": [
+    "PlayerMixin"
   ],
   "server": [],
   "injectors": {
