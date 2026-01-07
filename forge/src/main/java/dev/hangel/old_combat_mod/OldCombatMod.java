@@ -1,19 +1,23 @@
 package dev.hangel.old_combat_mod;
 
+import dev.hangel.old_combat_mod.gamerules.OldCombatGamerule;
+import net.minecraft.core.registries.Registries;
+import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.RegisterEvent;
 
 @Mod(Constants.MOD_ID)
 public class OldCombatMod {
 
-    public OldCombatMod() {
+    public OldCombatMod(FMLJavaModLoadingContext context) {
+        BusGroup modBusGroup = context.getModBusGroup();
+        RegisterEvent.getBus(modBusGroup).addListener(this::onRegister);
+    }
 
-        // This method is invoked by the Forge mod loader when it is ready
-        // to load your mod. You can access Forge and Common code in this
-        // project.
-
-        // Use Forge to bootstrap the Common mod.
-        Constants.LOG.info("Hello Forge world!");
-        CommonClass.init();
-
+    private void onRegister(RegisterEvent event) {
+        if (event.getRegistryKey().equals(Registries.GAME_RULE)) {
+            OldCombatGamerule.register();
+        }
     }
 }
