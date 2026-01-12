@@ -108,7 +108,6 @@ jobs:
         with:
           tag_name: v${{ env.MOD_VERSION }}+build.${{ github.run_number }}
           name: Release v${{ env.MOD_VERSION }} (Minecraft ${{ env.MC_VERSION }})
-          draft: true
           generate_release_notes: true
           files: |
             upload/*.jar
