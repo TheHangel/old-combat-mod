@@ -3,9 +3,8 @@
   "minVersion": "0.8",
   "package": "dev.hangel.old_combat_mod.mixin",
   "compatibilityLevel": "JAVA_18",
-  "mixins": [],
-  "client": [
-    "MixinTitleScreen"
+  "mixins": [
+    "PlayerMixin"
   ],
   "server": [],
   "injectors": {
