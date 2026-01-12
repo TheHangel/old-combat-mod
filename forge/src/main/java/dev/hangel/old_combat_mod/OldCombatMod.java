@@ -2,6 +2,8 @@ package dev.hangel.old_combat_mod;
 
 import dev.hangel.old_combat_mod.gamerules.OldCombatGamerule;
 import net.minecraft.core.registries.Registries;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -13,11 +15,21 @@ public class OldCombatMod {
     public OldCombatMod(FMLJavaModLoadingContext context) {
         BusGroup modBusGroup = context.getModBusGroup();
         RegisterEvent.getBus(modBusGroup).addListener(this::onRegister);
+        TickEvent.LevelTickEvent.Post.BUS.addListener(this::onLevelTick);
+        PlayerEvent.PlayerLoggedInEvent.BUS.addListener(this::onPlayerLogin);
     }
 
     private void onRegister(RegisterEvent event) {
         if (event.getRegistryKey().equals(Registries.GAME_RULE)) {
             OldCombatGamerule.register();
         }
+    }
+
+    private void onLevelTick(TickEvent.LevelTickEvent.Post event) {
+        OldCombatLogic.onWorldTick(event);
+    }
+
+    private void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        OldCombatLogic.onPlayerJoin(event);
     }
 }
