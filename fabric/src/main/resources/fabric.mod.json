@@ -14,7 +14,7 @@
     },
     "license": "${license}",
     "icon": "${mod_id}.png",
-    "environment": "server",
+    "environment": "*",
     "entrypoints": {
         "main": [
             "dev.hangel.old_combat_mod.OldCombatMod"

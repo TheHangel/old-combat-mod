@@ -1,47 +1,28 @@
 package dev.hangel.old_combat_mod;
 
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.gamerule.v1.GameRuleBuilder;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.resources.Identifier;
+import dev.hangel.old_combat_mod.gamerules.OldCombatGamerule;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.gamerules.GameRule;
-import net.minecraft.world.level.gamerules.GameRuleCategory;
+import net.minecraft.world.level.gamerules.GameRules;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class OldCombatMod implements ModInitializer {
-
-    public static GameRule<Boolean> OLD_COMBAT;
+public class OldCombatLogic {
 
     private static final Map<ResourceKey<Level>, Boolean> LAST = new ConcurrentHashMap<>();
 
-    @Override
-    public void onInitialize() {
-        OLD_COMBAT = GameRuleBuilder
-                .forBoolean(true)
-                .category(GameRuleCategory.PLAYER)
-                .buildAndRegister(Identifier.fromNamespaceAndPath(Identifier.DEFAULT_NAMESPACE, "old_combat"));
+    public static void onWorldTick(LevelTickEvent.Post event) {
+        if (!(event.getLevel() instanceof ServerLevel world)) return;
 
-        ServerTickEvents.END_WORLD_TICK.register(OldCombatMod::onWorldTick);
-
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            ServerPlayer player = handler.player;
-            apply(player, player.level().getGameRules().get(OLD_COMBAT));
-        });
-    }
-
-    private static void onWorldTick(ServerLevel world) {
-        if (world.isClientSide()) return;
-
-        boolean enabled = world.getGameRules().get(OLD_COMBAT);
+        GameRules rules = world.getGameRules();
+        boolean enabled = rules.get(OldCombatGamerule.OLD_COMBAT);
 
         ResourceKey<Level> key = world.dimension();
         Boolean last = LAST.putIfAbsent(key, enabled);
@@ -58,6 +39,13 @@ public class OldCombatMod implements ModInitializer {
         LAST.put(key, enabled);
     }
 
+    public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+
+        boolean enabled = player.level().getGameRules().get(OldCombatGamerule.OLD_COMBAT);
+        apply(player, enabled);
+    }
+
     private static void applyAll(ServerLevel world, boolean enabled) {
         for (ServerPlayer p : world.players()) {
             apply(p, enabled);
@@ -69,7 +57,7 @@ public class OldCombatMod implements ModInitializer {
         if (inst == null) return;
 
         if (enabled) {
-            inst.setBaseValue(1024);
+            inst.setBaseValue(1024.0D);
         } else {
             inst.setBaseValue(Attributes.ATTACK_SPEED.value().getDefaultValue());
         }
