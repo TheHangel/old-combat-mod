@@ -163,10 +163,10 @@ jobs:
       - name: Publish (${{ matrix.loader }})
         uses: Kir-Antipov/mc-publish@v3
         with:
-          modrinth-id: 4AtIxJG2
+          modrinth-id: dZ1APLkO
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
 
-          curseforge-id: 1415270
+          curseforge-id: 430735
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
           files: |
