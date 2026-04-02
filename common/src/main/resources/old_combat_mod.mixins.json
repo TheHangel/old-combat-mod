@@ -2,8 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "dev.hangel.old_combat_mod.mixin",
-  "refmap": "${mod_id}.refmap.json",
-  "compatibilityLevel": "JAVA_18",
+  "compatibilityLevel": "JAVA_21",
   "mixins": [],
   "client": [
     "MixinMinecraft"
@@ -13,4 +12,3 @@
     "defaultRequire": 1
   }
 }
-

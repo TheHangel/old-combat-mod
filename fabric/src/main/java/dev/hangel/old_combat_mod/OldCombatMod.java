@@ -30,7 +30,7 @@ public class OldCombatMod implements ModInitializer {
                 .category(GameRuleCategory.PLAYER)
                 .buildAndRegister(Identifier.fromNamespaceAndPath(Identifier.DEFAULT_NAMESPACE, "old_combat"));
 
-        ServerTickEvents.END_WORLD_TICK.register(OldCombatMod::onWorldTick);
+        ServerTickEvents.END_LEVEL_TICK.register(OldCombatMod::onWorldTick);
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayer player = handler.player;

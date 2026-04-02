@@ -13,14 +13,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        loader: [ fabric, forge, neoforge ]
+        loader: [ fabric, neoforge ]
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 25
           cache: gradle
 
       - name: Build ${{ matrix.loader }}
@@ -97,7 +97,6 @@ jobs:
           }
 
           pick fabric
-          pick forge
           pick neoforge
 
           echo "Files to upload:"
@@ -119,7 +118,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        loader: [ fabric, forge, neoforge ]
+        loader: [ fabric, neoforge ]
     steps:
       - uses: actions/checkout@v4
       - name: Read versions from gradle.properties
