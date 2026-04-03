@@ -2,6 +2,8 @@ package dev.hangel.old_combat_mod;
 
 import dev.hangel.old_combat_mod.gamerules.OldCombatGamerule;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -27,10 +29,14 @@ public class OldCombatMod {
     }
 
     private static void onLevelTick(TickEvent.LevelTickEvent.Post event) {
-        OldCombatLogic.onWorldTick(event);
+        if (event.level() instanceof ServerLevel world) {
+            OldCombatLogic.onWorldTick(world);
+        }
     }
 
     private static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        OldCombatLogic.onPlayerJoin(event);
+        if (event.getEntity() instanceof ServerPlayer player) {
+            OldCombatLogic.onPlayerJoin(player);
+        }
     }
 }
