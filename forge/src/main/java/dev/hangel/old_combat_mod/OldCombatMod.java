@@ -2,9 +2,10 @@ package dev.hangel.old_combat_mod;
 
 import dev.hangel.old_combat_mod.gamerules.OldCombatGamerule;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.RegisterEvent;
@@ -13,10 +14,12 @@ import net.minecraftforge.registries.RegisterEvent;
 public class OldCombatMod {
 
     public OldCombatMod(FMLJavaModLoadingContext context) {
-        BusGroup modBusGroup = context.getModBusGroup();
-        RegisterEvent.getBus(modBusGroup).addListener(this::onRegister);
-        TickEvent.LevelTickEvent.Post.BUS.addListener(this::onLevelTick);
-        PlayerEvent.PlayerLoggedInEvent.BUS.addListener(this::onPlayerLogin);
+        CommonClass.init();
+
+        RegisterEvent.getBus(context.getModBusGroup()).addListener(this::onRegister);
+
+        TickEvent.LevelTickEvent.Post.BUS.addListener(OldCombatMod::onLevelTick);
+        PlayerEvent.PlayerLoggedInEvent.BUS.addListener(OldCombatMod::onPlayerLogin);
     }
 
     private void onRegister(RegisterEvent event) {
@@ -25,11 +28,15 @@ public class OldCombatMod {
         }
     }
 
-    private void onLevelTick(TickEvent.LevelTickEvent.Post event) {
-        OldCombatLogic.onWorldTick(event);
+    private static void onLevelTick(TickEvent.LevelTickEvent.Post event) {
+        if (event.level() instanceof ServerLevel world) {
+            OldCombatLogic.onWorldTick(world);
+        }
     }
 
-    private void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        OldCombatLogic.onPlayerJoin(event);
+    private static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            OldCombatLogic.onPlayerJoin(player);
+        }
     }
 }

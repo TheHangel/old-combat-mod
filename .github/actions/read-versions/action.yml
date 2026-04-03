@@ -1,0 +1,33 @@
+name: Read versions
+description: Read mc_version and mod_version from gradle.properties
+outputs:
+  mc_version:
+    description: Minecraft version
+    value: ${{ steps.props.outputs.mc_version }}
+  mod_version:
+    description: Mod version
+    value: ${{ steps.props.outputs.mod_version }}
+runs:
+  using: composite
+  steps:
+    - name: Read versions from gradle.properties
+      id: props
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        prop() {
+          grep -E "^\s*${1}\s*=" gradle.properties | head -n1 | cut -d= -f2- | sed 's/^\s*//; s/\s*$//'
+        }
+
+        MC_VERSION="$(prop minecraft_version)"
+        MOD_VERSION="$(prop version)"
+
+        if [[ -z "${MC_VERSION}" || -z "${MOD_VERSION}" ]]; then
+          echo "::error::Could not read minecraft_version or version from gradle.properties"
+          exit 1
+        fi
+
+        echo "mc_version=${MC_VERSION}" >> "$GITHUB_OUTPUT"
+        echo "mod_version=${MOD_VERSION}" >> "$GITHUB_OUTPUT"
+        echo "✅ MC=${MC_VERSION} MOD=${MOD_VERSION}"

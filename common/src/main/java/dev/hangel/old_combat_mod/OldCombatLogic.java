@@ -7,9 +7,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.gamerules.GameRules;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,11 +15,8 @@ public class OldCombatLogic {
 
     private static final Map<ResourceKey<Level>, Boolean> LAST = new ConcurrentHashMap<>();
 
-    public static void onWorldTick(TickEvent.LevelTickEvent.Post event) {
-        if (!(event.level() instanceof ServerLevel world)) return;
-
-        GameRules rules = world.getGameRules();
-        boolean enabled = rules.get(OldCombatGamerule.OLD_COMBAT);
+    public static void onWorldTick(ServerLevel world) {
+        boolean enabled = world.getGameRules().get(OldCombatGamerule.OLD_COMBAT);
 
         ResourceKey<Level> key = world.dimension();
         Boolean last = LAST.putIfAbsent(key, enabled);
@@ -39,9 +33,7 @@ public class OldCombatLogic {
         LAST.put(key, enabled);
     }
 
-    public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
-
+    public static void onPlayerJoin(ServerPlayer player) {
         boolean enabled = player.level().getGameRules().get(OldCombatGamerule.OLD_COMBAT);
         apply(player, enabled);
     }

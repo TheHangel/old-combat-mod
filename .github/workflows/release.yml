@@ -13,14 +13,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        loader: [ fabric, forge, neoforge ]
+        loader: [ fabric, neoforge, forge ]
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 25
           cache: gradle
 
       - name: Build ${{ matrix.loader }}
@@ -43,29 +43,9 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Read versions from gradle.properties
-        shell: bash
-        run: |
-          set -euo pipefail
 
-          prop() {
-            local key="$1"
-            grep -E "^\s*${key}\s*=" gradle.properties | head -n1 | cut -d= -f2- | sed 's/^\s*//; s/\s*$//'
-          }
-
-          MC_VERSION="$(prop minecraft_version)"
-          MOD_VERSION="$(prop version)"
-
-          if [[ -z "${MC_VERSION}" || -z "${MOD_VERSION}" ]]; then
-            echo "❌ Impossible de lire minecraft_version ou version depuis gradle.properties"
-            exit 1
-          fi
-
-          echo "MC_VERSION=${MC_VERSION}" >> "$GITHUB_ENV"
-          echo "MOD_VERSION=${MOD_VERSION}" >> "$GITHUB_ENV"
-
-          echo "✅ MC_VERSION=${MC_VERSION}"
-          echo "✅ MOD_VERSION=${MOD_VERSION}"
+      - uses: ./.github/actions/read-versions
+        id: versions
 
       - uses: actions/download-artifact@v4
         with:
@@ -97,8 +77,8 @@ jobs:
           }
 
           pick fabric
-          pick forge
           pick neoforge
+          pick forge
 
           echo "Files to upload:"
           ls -lah upload
@@ -106,8 +86,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ env.MOD_VERSION }}+build.${{ github.run_number }}
-          name: Release v${{ env.MOD_VERSION }} (Minecraft ${{ env.MC_VERSION }})
+          tag_name: v${{ steps.versions.outputs.mod_version }}+build.${{ github.run_number }}
+          name: Release v${{ steps.versions.outputs.mod_version }} (Minecraft ${{ steps.versions.outputs.mc_version }})
           generate_release_notes: true
           files: |
             upload/*.jar
@@ -119,32 +99,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        loader: [ fabric, forge, neoforge ]
+        loader: [ fabric, neoforge, forge ]
     steps:
       - uses: actions/checkout@v4
-      - name: Read versions from gradle.properties
-        shell: bash
-        run: |
-          set -euo pipefail
 
-          prop() {
-            local key="$1"
-            grep -E "^\s*${key}\s*=" gradle.properties | head -n1 | cut -d= -f2- | sed 's/^\s*//; s/\s*$//'
-          }
-
-          MC_VERSION="$(prop minecraft_version)"
-          MOD_VERSION="$(prop version)"
-
-          if [[ -z "${MC_VERSION}" || -z "${MOD_VERSION}" ]]; then
-            echo "❌ Impossible de lire minecraft_version ou version depuis gradle.properties"
-            exit 1
-          fi
-
-          echo "MC_VERSION=${MC_VERSION}" >> "$GITHUB_ENV"
-          echo "MOD_VERSION=${MOD_VERSION}" >> "$GITHUB_ENV"
-
-          echo "✅ MC_VERSION=${MC_VERSION}"
-          echo "✅ MOD_VERSION=${MOD_VERSION}"
+      - uses: ./.github/actions/read-versions
+        id: versions
 
       - uses: actions/download-artifact@v4
         with:
@@ -171,11 +131,11 @@ jobs:
           files: |
             ${{ env.JAR }}
 
-          version: ${{ env.MOD_VERSION }}+${{ matrix.loader }}.build.${{ github.run_number }}
-          name: ${{ matrix.loader }} ${{ env.MOD_VERSION }} (Minecraft ${{ env.MC_VERSION }})
+          version: ${{ steps.versions.outputs.mod_version }}+${{ matrix.loader }}.build.${{ github.run_number }}
+          name: ${{ matrix.loader }} ${{ steps.versions.outputs.mod_version }} (Minecraft ${{ steps.versions.outputs.mc_version }})
 
           loaders: |
             ${{ matrix.loader }}
 
           game-versions: |
-            ${{ env.MC_VERSION }}
+            ${{ steps.versions.outputs.mc_version }}
