@@ -36,3 +36,4 @@ rootProject.name = 'Old Combat Mod'
 include('common')
 include('fabric')
 include('neoforge')
+include('examplemod')
