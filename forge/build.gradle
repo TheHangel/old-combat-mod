@@ -1,16 +1,6 @@
 plugins {
-    id 'java'
-    id 'idea'
+    id 'multiloader-loader'
     id 'net.minecraftforge.gradle' version '[7.0.17,8)'
-}
-
-version = '1.2'
-group = 'dev.hangel.old_combat_mod'
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(25)
-
-base {
-    archivesName = "old_combat_mod-forge-26.1"
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
@@ -21,10 +11,10 @@ minecraft {
             workingDir = layout.projectDirectory.dir('run')
 
             systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
-            systemProperty 'forge.enabledGameTestNamespaces', 'old_combat_mod'
+            systemProperty 'forge.enabledGameTestNamespaces', mod_id
 
-            args "--mixin.config=old_combat_mod.mixins.json"
-            args "--mixin.config=old_combat_mod.forge.mixins.json"
+            args "--mixin.config=${mod_id}.mixins.json"
+            args "--mixin.config=${mod_id}.forge.mixins.json"
         }
 
         register('client')
@@ -35,7 +25,7 @@ minecraft {
 
         register('data') {
             workingDir = layout.projectDirectory.dir('run-data')
-            args '--mod', 'old_combat_mod', '--all', '--output', layout.projectDirectory.dir('src/generated/resources'), '--existing', layout.projectDirectory.dir('src/main/resources')
+            args '--mod', mod_id, '--all', '--output', layout.projectDirectory.dir('src/generated/resources'), '--existing', layout.projectDirectory.dir('src/main/resources')
         }
     }
 }
@@ -44,18 +34,17 @@ repositories {
     minecraft.mavenizer(it)
     maven fg.forgeMaven
     maven fg.minecraftLibsMaven
-    mavenCentral()
 }
 
 dependencies {
-    implementation minecraft.dependency('net.minecraftforge:forge:26.1-62.0.9')
+    implementation minecraft.dependency("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
     annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.1'
     annotationProcessor 'org.spongepowered:mixin:0.8.7:processor'
 }
 
 tasks.named('jar', Jar) {
     manifest {
-        attributes['MixinConfigs'] = "old_combat_mod.mixins.json,old_combat_mod.forge.mixins.json"
+        attributes['MixinConfigs'] = "${mod_id}.mixins.json,${mod_id}.forge.mixins.json"
     }
 }
 

@@ -1,34 +1,34 @@
 modLoader="javafml"
-loaderVersion="[62,)"
-license="All Rights Reserved"
-issueTrackerURL="https://github.com/TheHangel/old-combat-mod/issues"
+loaderVersion="${forge_loader_version_range}"
+license="${license}"
+issueTrackerURL="${issues_url}"
 
 [[mods]]
-modId="old_combat_mod"
-version="1.2"
-displayName="Old Combat Mod"
-displayURL="https://hangel.dev"
-logoFile="old_combat_mod.png"
-credits=""
-authors="The_Hangel"
+modId="${mod_id}"
+version="${version}"
+displayName="${mod_name}"
+displayURL="${homepage_url}"
+logoFile="${mod_id}.png"
+credits="${credits}"
+authors="${mod_author}"
 
-description='''Mod that allows the old combat system with the old animation in Minecraft.'''
+description='''${description}'''
 
 [[mixins]]
-config="old_combat_mod.mixins.json"
+config="${mod_id}.mixins.json"
 [[mixins]]
-config="old_combat_mod.forge.mixins.json"
+config="${mod_id}.forge.mixins.json"
 
-[[dependencies.old_combat_mod]]
+[[dependencies.${mod_id}]]
     modId="forge"
     mandatory=true
-    versionRange="[62,)"
+    versionRange="[${forge_version},)"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.old_combat_mod]]
+[[dependencies.${mod_id}]]
     modId="minecraft"
     mandatory=true
-    versionRange="[26.1,26.2)"
+    versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
