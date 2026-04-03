@@ -1,21 +1,18 @@
-// This is a minimal setup of a Forge mod workspace.
-// For complex examples (including AccessTransformers, Jar-in-Jar, and Mixin), see our examples repository.
-// https://github.com/MinecraftForge/MDKExamples
-
 plugins {
     id 'java'
     id 'idea'
-    id 'eclipse'
     id 'net.minecraftforge.gradle' version '[7.0.17,8)'
 }
 
-version = '1.0.0'
-group = 'com.example.examplemod'
+version = '1.2'
+group = 'dev.hangel.old_combat_mod'
 
-// Mojang ships Java 25 to end users in 26.1+, so your mod should target Java 25.
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
-// Include generated resources
+base {
+    archivesName = "old_combat_mod-forge-26.1"
+}
+
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 minecraft {
@@ -24,7 +21,10 @@ minecraft {
             workingDir = layout.projectDirectory.dir('run')
 
             systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
-            systemProperty 'forge.enabledGameTestNamespaces', 'examplemod'
+            systemProperty 'forge.enabledGameTestNamespaces', 'old_combat_mod'
+
+            args "--mixin.config=old_combat_mod.mixins.json"
+            args "--mixin.config=old_combat_mod.forge.mixins.json"
         }
 
         register('client')
@@ -33,18 +33,15 @@ minecraft {
             args '--nogui'
         }
 
-        register('gameTestServer')
-
         register('data') {
             workingDir = layout.projectDirectory.dir('run-data')
-
-            args '--mod', 'examplemod', '--all', '--output', layout.projectDirectory.dir('src/generated/resources'), '--existing', layout.projectDirectory.dir('src/main/resources')
+            args '--mod', 'old_combat_mod', '--all', '--output', layout.projectDirectory.dir('src/generated/resources'), '--existing', layout.projectDirectory.dir('src/main/resources')
         }
     }
 }
 
 repositories {
-    minecraft.mavenizer(it) // In Kotlin, it = this
+    minecraft.mavenizer(it)
     maven fg.forgeMaven
     maven fg.minecraftLibsMaven
     mavenCentral()
@@ -53,10 +50,15 @@ repositories {
 dependencies {
     implementation minecraft.dependency('net.minecraftforge:forge:26.1-62.0.9')
     annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.1'
+    annotationProcessor 'org.spongepowered:mixin:0.8.7:processor'
+}
+
+tasks.named('jar', Jar) {
+    manifest {
+        attributes['MixinConfigs'] = "old_combat_mod.mixins.json,old_combat_mod.forge.mixins.json"
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
-    // Use the UTF-8 charset for Java compilation
-    // This is done by default in Java 18+, but this ensures it no matter the Java or Gradle version
     options.encoding = 'UTF-8'
 }
