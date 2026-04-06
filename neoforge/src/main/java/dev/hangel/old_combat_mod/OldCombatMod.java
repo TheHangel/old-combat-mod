@@ -15,8 +15,6 @@ import net.neoforged.neoforge.registries.RegisterEvent;
 public class OldCombatMod {
 
     public OldCombatMod(IEventBus modBus) {
-        CommonClass.init();
-
         modBus.addListener(this::onRegister);
 
         NeoForge.EVENT_BUS.addListener(OldCombatMod::onLevelTick);
