@@ -14,7 +14,7 @@ public class PlayerMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;setSprinting(Z)V")
     )
     private void oldCombat$dontStopSprintingOnKnockback(Player self, boolean sprinting) {
-        if (self.level() instanceof ServerLevel serverLevel) {
+        if (OldCombatGamerule.OLD_COMBAT != null && self.level() instanceof ServerLevel serverLevel) {
             boolean enabled = serverLevel.getGameRules().get(OldCombatGamerule.OLD_COMBAT);
             if (enabled) return;
         }
