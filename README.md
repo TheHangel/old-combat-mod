@@ -1,9 +1,10 @@
-# Old Combat Mod
+# Description
 
-## Setup
+This mod disables cooldown and brings back the swing hand animation. Still work with shields.
 
-For setup instructions please see the [fabric wiki page](https://fabricmc.net/wiki/tutorial:setup) that relates to the IDE that you are using.
+Also, it adds a gamerule to get the mod enable or not anytime you want :
+<br>
+<img src="https://i.ibb.co/RBd183T/command-show.png" alt="old combat gamerule command" width="1000"/>
 
-## License
-
-All Rights Reserved.
+# Preview
+![Old Combat Preview](https://iili.io/dNeaPHb.gif)
