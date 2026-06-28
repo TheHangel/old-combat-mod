@@ -10,7 +10,6 @@ public class OldCombatMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        CommonClass.init();
         OldCombatGamerule.register();
 
         ServerTickEvents.END_LEVEL_TICK.register(world -> {

@@ -14,8 +14,6 @@ import net.minecraftforge.registries.RegisterEvent;
 public class OldCombatMod {
 
     public OldCombatMod(FMLJavaModLoadingContext context) {
-        CommonClass.init();
-
         RegisterEvent.getBus(context.getModBusGroup()).addListener(this::onRegister);
 
         TickEvent.LevelTickEvent.Post.BUS.addListener(OldCombatMod::onLevelTick);
