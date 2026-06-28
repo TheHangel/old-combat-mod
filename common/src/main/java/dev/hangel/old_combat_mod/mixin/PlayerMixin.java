@@ -15,7 +15,7 @@ public class PlayerMixin {
             remap = false
     )
     private void oldCombat$dontStopSprintingOnKnockback(Player self, boolean sprinting) {
-        if (self.level() instanceof ServerLevel serverLevel) {
+        if (OldCombatGamerule.OLD_COMBAT != null && self.level() instanceof ServerLevel serverLevel) {
             boolean enabled = serverLevel.getGameRules().get(OldCombatGamerule.OLD_COMBAT);
             if (enabled) return;
         }
