@@ -4,6 +4,8 @@ import dev.hangel.old_combat_mod.gamerules.OldCombatGamerule;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.gamerules.GameRuleCategory;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -22,7 +24,7 @@ public class OldCombatMod {
 
     private void onRegister(RegisterEvent event) {
         if (event.getRegistryKey().equals(Registries.GAME_RULE)) {
-            OldCombatGamerule.register();
+            OldCombatGamerule.OLD_COMBAT = GameRules.registerBoolean("old_combat", GameRuleCategory.PLAYER, true);
         }
     }
 
